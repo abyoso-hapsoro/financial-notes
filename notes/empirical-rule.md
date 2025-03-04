@@ -9,8 +9,10 @@ Specifically, this means:\
 WLOG, let's show why this is the case with an example.\
 Let X ~ N(0, 1), i.e., X is normally distributed with mean 0 and variance 1 (consequently, standard deviation 1).
 
+<br>
+
 For the first case:
-$$
+```math
 \begin{align*}
     \mathbb{P}(\mu - 1\sigma \leq X \leq \mu + 1\sigma)
     &= \mathbb{P}(X \leq \mu + 1\sigma) - \mathbb{P}(X \leq \mu - 1\sigma)\\
@@ -20,10 +22,10 @@ $$
     &= 0.68268\\
     &\approx 68\%
 \end{align*}
-$$
+```
 
 Similarly for the second case:
-$$
+```math
 \begin{align*}
     \mathbb{P}(\mu - 2\sigma \leq X \leq \mu + 2\sigma)
     &= \Phi(2) - \Phi(-2)\\
@@ -31,10 +33,10 @@ $$
     &= 0.9545\\
     &\approx 95\%
 \end{align*}
-$$
+```
 
 And for the third case:
-$$
+```math
 \begin{align*}
     \mathbb{P}(\mu - 3\sigma \leq X \leq \mu + 3\sigma)
     &= \Phi(3) - \Phi(-3)\\
@@ -42,9 +44,11 @@ $$
     &= 0.9973\\
     &\approx 99.7\%
 \end{align*}
-$$
+```
 
-The values for $\Phi$s above can be obtained using a z-score table. Here is an online resource we can use to find them: [ztable.net](https://www.ztable.net).
+<br>
+
+The values for $\Phi\text{s}$ above can be obtained using a z-score table. Here is an online resource we can use to find them: [ztable.net](https://www.ztable.net).
 
 Lastly, we can visualize the Empirical Rule for our example as follows.
 <img src="../images/empirical_rule.png"></img>
