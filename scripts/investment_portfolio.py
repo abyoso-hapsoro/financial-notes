@@ -121,7 +121,6 @@ class Portfolio:
         return f'Portfolio(returns={self.returns}, weights={self.weights})'
 
     def __str__(self):
-        prefix = 4*" "
         output = f"Portfolio consists of the following {self.count} securities:\n"
         for idx in range(self.count):
             abs_weight_str = f"{100 * abs(self.weights[idx]):.{self.fp}f}".rjust(self.max_weight_length)
@@ -129,7 +128,7 @@ class Portfolio:
             return_str = f"{100 * self.returns[idx]:.{self.fp}f}".rjust(self.max_return_length)
             volatility_str = f"{100 * self.volatilities[idx]:.{self.fp}f}".rjust(self.max_volatility_length)
             shorting = " (shorted)" if self.weights[idx] < 0 else ""
-            output += f"{prefix}[{idx + 1}] {sign}{abs_weight_str}%"
+            output += f"    [{idx + 1}] {sign}{abs_weight_str}%"
             output += f" with expected return of {return_str}%"
             output += f" and volatility of {volatility_str}%"
             output += f"{shorting}\n"
@@ -162,6 +161,44 @@ class Portfolio:
             portfolio_volatility_str = f"{100 * portfolio_volatility:.{self.fp}f}"
             print(f"• Portfolio has volatility of {portfolio_volatility_str}%")
         return portfolio_volatility
+
+    def calculate_coefficient_of_variation(self, idx=0, verbose=True) -> float:
+        if idx == 0:
+            portfolio_return = self.calculate_return(verbose=False)
+            portfolio_volatility = self.calculate_volatility(verbose=False)
+            portfolio_cv = portfolio_volatility / portfolio_return
+            if verbose:
+                portfolio_cv_str = f"{portfolio_cv:.{self.fp}f}"
+                print(f"• Portfolio has coefficient of variation of {portfolio_cv_str}")
+            return portfolio_cv
+        else:
+            security_return = self.returns[idx - 1]
+            security_volatility = self.volatilities[idx - 1]
+            security_cv = security_volatility / security_return
+            if verbose:
+                security_cv_str = f"{security_cv:.{self.fp}f}"
+                print(f"  Security [{idx}] has coefficient of variation of {security_cv_str}")
+            return security_cv
+    
+    def calculate_sharpe_ratio(self, rf, idx=0, verbose=True) -> float:
+        assert rf >= 0, 'Risk-Free Rate of Return must be nonnegative.'
+        rf_str = f"(w/ risk-free rate {100 * rf:.{self.fp}f}%)"
+        if idx == 0:
+            portfolio_return = self.calculate_return(verbose=False)
+            portfolio_volatility = self.calculate_volatility(verbose=False)
+            portfolio_sr = (portfolio_return - rf) / portfolio_volatility
+            if verbose:
+                portfolio_sr_str = f"{portfolio_sr:.{self.fp}f}"
+                print(f"• Portfolio has sharpe ratio of {portfolio_sr_str}    {rf_str}")
+            return portfolio_sr
+        else:
+            security_return = self.returns[idx - 1]
+            security_volatility = self.volatilities[idx - 1]
+            security_sr = (security_return - rf) / security_volatility
+            if verbose:
+                security_sr_str = f"{security_sr:.{self.fp}f}"
+                print(f"  Security [{idx}] has sharpe ratio of {security_sr_str} {rf_str}")
+            return security_sr
 
 
 if __name__ == '__main__':
@@ -197,3 +234,12 @@ if __name__ == '__main__':
 
     # Assessment 2: Calculate portfolio volatility (portfolio standard deviation)
     portfolio.calculate_volatility()
+
+    # Assessment 3: Calculate portfolio and each security's coefficient of variation
+    for security in range(portfolio.count + 1):
+        portfolio.calculate_coefficient_of_variation(security)
+
+    # Assessment 4: Calculate portfolio and each security's sharpe ratio
+    risk_free_rate = 0.01
+    for security in range(portfolio.count + 1):
+        portfolio.calculate_sharpe_ratio(risk_free_rate, security)
