@@ -6,6 +6,30 @@ setattr(sys, 'tracebacklimit', 0)
 
 
 class Portfolio:
+    """
+    A financial portfolio of securities, e.g., assets and stocks.
+
+    Attributes:
+        returns (list[float]):
+            Expected returns for each security.
+        volatilities (list[float]):
+            Volatilities (standard deviations) for each security.
+        weights (list[float]):
+            Portfolio allocation weights for each security.
+        correlations (dict[tuple[int, int], float]):
+            Pairwise correlation coefficients between securities.
+        fp (int):
+            Floating precision for output formatting.
+        count (int):
+            Number of securities in the portfolio.
+        max_return_length (int):
+            Maximum formatted string length for returns (for display alignment).
+        max_volatility_length (int):
+            Maximum formatted string length for volatilities (for display alignment).
+        max_weight_length (int):
+            Maximum formatted string length for weights (for display alignment).
+    """
+
     def __init__(
         self,
         returns: list[float],
@@ -14,6 +38,25 @@ class Portfolio:
         correlations: dict[tuple[int, int], float] = None,
         fp: int = 2
     ):
+        """
+        Initializes the Portfolio with given financial data.
+
+        Args:
+            returns (list[float]):
+                Expected returns for each security.
+            volatilities (list[float], optional):
+                Volatilities (standard deviations) for each security.
+                Defaults to None, which sets each security volatility to zero.
+            weights (list[float], optional):
+                Portfolio allocation weights for each security.
+                Defaults to None, which sets each security weight to same value which sums to one.
+            correlations (dict[tuple[int, int], float], optional):
+                Pairwise correlation coefficients between securities.
+                Defaults to None, which sets each correlation between securities to zero.
+            fp (int, optional):
+                Floating precision for output formatting.
+                Defaults to 2.
+        """
         # Initialize returns then set
         self._returns = None
         self.returns = returns
@@ -48,6 +91,9 @@ class Portfolio:
 
     @returns.setter
     def returns(self, returns_):
+        """
+        Validate 'returns' argument passed to Portfolio.
+        """
         assert isinstance(returns_, list), 'Returns must be a list.'
         for return_ in returns_:
             assert isinstance(return_, float) and 0 <= return_ <= 1, 'Each return must be between 0 and 1 inclusive.'
@@ -59,6 +105,9 @@ class Portfolio:
 
     @volatilities.setter
     def volatilities(self, volatilities_):
+        """
+        Validate 'volatilities' argument passed to Portfolio.
+        """
         if volatilities_ is None:
             self._volatilities = self.count * [0]
         else:
@@ -73,6 +122,9 @@ class Portfolio:
 
     @weights.setter
     def weights(self, weights_):
+        """
+        Validate 'weights' argument passed to Portfolio.
+        """
         if weights_ is None:
             self._weights = self.count * [1/self.count]
         else:
@@ -88,6 +140,9 @@ class Portfolio:
 
     @correlations.setter
     def correlations(self, correlations_):
+        """
+        Validate 'correlations' argument passed to Portfolio.
+        """
         if correlations_ is None:
             correlations_ = {}
             for idx_i in range(1, self.count):
@@ -114,6 +169,9 @@ class Portfolio:
 
     @fp.setter
     def fp(self, fp_):
+        """
+        Validate 'fp' argument passed to Portfolio.
+        """
         assert isinstance(fp_, int) and fp_ >= 0, 'Returns must be nonnegative integer.'
         self._fp = fp_
 
@@ -141,14 +199,34 @@ class Portfolio:
                     output += "\n"
         return output
 
-    def calculate_return(self, verbose=True) -> float:
+    def calculate_return(self, verbose: bool = True) -> float:
+        """
+        Calculate expected return of the portfolio.
+
+        Args:
+            verbose (bool, optional):
+                Whether to print the result. Defaults to True.
+        
+        Returns:
+            float: The portfolio expected return.
+        """
         portfolio_return = sum(self.weights[idx] * self.returns[idx] for idx in range(self.count))
         if verbose:
             portfolio_return_str = f"{100 * portfolio_return:.{self.fp}f}"
             print(f"• Portfolio has expected return of {portfolio_return_str}%")
         return portfolio_return
 
-    def calculate_volatility(self, verbose=True) -> float:
+    def calculate_volatility(self, verbose: bool = True) -> float:
+        """
+        Calculate volatility (standard deviation) of the portfolio.
+
+        Args:
+            verbose (bool, optional):
+                Whether to print the result. Defaults to True.
+        
+        Returns:
+            float: The portfolio volatility (standard deviation).
+        """
         portfolio_variance = sum([(self.weights[idx] * self._volatilities[idx])**2 for idx in range(self.count)])
         for idx_i in range(1, self.count):
             for idx_j in range(idx_i + 1, self.count + 1):
@@ -162,7 +240,19 @@ class Portfolio:
             print(f"• Portfolio has volatility of {portfolio_volatility_str}%")
         return portfolio_volatility
 
-    def calculate_coefficient_of_variation(self, idx=0, verbose=True) -> float:
+    def calculate_coefficient_of_variation(self, idx: int = 0, verbose: bool = True) -> float:
+        """
+        Calculate coefficient of variation of the portfolio or specific security.
+
+        Args:
+            idx (int, optional):
+                If 0, calculate for the portfolio. Otherwise, calculate for specific security. Defaults to 0.
+            verbose (bool, optional):
+                Whether to print the result. Defaults to True.
+        
+        Returns:
+            float: The portfolio or security coefficient of variation.
+        """
         if idx == 0:
             portfolio_return = self.calculate_return(verbose=False)
             portfolio_volatility = self.calculate_volatility(verbose=False)
@@ -181,6 +271,20 @@ class Portfolio:
             return security_cv
     
     def calculate_sharpe_ratio(self, rf, idx=0, verbose=True) -> float:
+        """
+        Calculate sharpe ratio of the portfolio or specific security.
+
+        Args:
+            rf (float):
+                The risk-free rate of return.
+            idx (int, optional):
+                If 0, calculate for the portfolio. Otherwise, calculate for specific security. Defaults to 0.
+            verbose (bool, optional):
+                Whether to print the result. Defaults to True.
+        
+        Returns:
+            float: The portfolio or security sharpe ratio.
+        """
         assert rf >= 0, 'Risk-Free Rate of Return must be nonnegative.'
         rf_str = f"(w/ risk-free rate {100 * rf:.{self.fp}f}%)"
         if idx == 0:
