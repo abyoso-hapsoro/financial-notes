@@ -1,5 +1,6 @@
 import sys
 import math
+from termcolor import colored
 
 # Set no traceback — only printing the AssertionError during exceptions
 setattr(sys, 'tracebacklimit', 0)
@@ -212,8 +213,8 @@ class Portfolio:
         """
         portfolio_return = sum(self.weights[idx] * self.returns[idx] for idx in range(self.count))
         if verbose:
-            portfolio_return_str = f"{100 * portfolio_return:.{self.fp}f}"
-            print(f"• Portfolio has expected return of {portfolio_return_str}%")
+            portfolio_return_str = f"{100 * portfolio_return:.{self.fp}f}%"
+            print(f"• Portfolio has expected return of {portfolio_return_str}")
         return portfolio_return
 
     def calculate_volatility(self, verbose: bool = True) -> float:
@@ -236,9 +237,35 @@ class Portfolio:
                 portfolio_variance += next_term
         portfolio_volatility = portfolio_variance ** 0.5
         if verbose:
-            portfolio_volatility_str = f"{100 * portfolio_volatility:.{self.fp}f}"
-            print(f"• Portfolio has volatility of {portfolio_volatility_str}%")
+            portfolio_volatility_str = f"{100 * portfolio_volatility:.{self.fp}f}%"
+            print(f"• Portfolio has volatility of {portfolio_volatility_str}")
         return portfolio_volatility
+
+    def calculate_variance_reduction(self, verbose: bool = True) -> float:
+        """
+        Calculate variance reduction (quantitative diversification benefit) of the portfolio.
+
+        Args:
+            verbose (bool, optional):
+                Whether to print the result. Defaults to True.
+        
+        Returns:
+            float: The portfolio variance reduction (diversification benefit).
+        """
+        portfolio_variance_max = sum([(self.weights[idx] * self._volatilities[idx])**2 for idx in range(self.count)])
+        for idx_i in range(1, self.count):
+            for idx_j in range(idx_i + 1, self.count + 1):
+                next_term = 2
+                next_term *= self.weights[idx_i - 1] * self.weights[idx_j - 1]
+                next_term *= self.volatilities[idx_i - 1] * self.volatilities[idx_j - 1]
+                portfolio_variance_max += next_term
+        portfolio_volatility_max = portfolio_variance_max ** 0.5
+        portfolio_volatility = self.calculate_volatility(verbose=False)
+        portfolio_vr = portfolio_volatility_max - portfolio_volatility
+        if verbose:
+            portfolio_vr_str = colored(f"{100 * portfolio_vr:.{self.fp}f}%", 'green')
+            print(f"• Portfolio has variance reduction (diversification benefit) of {portfolio_vr_str}")
+        return portfolio_vr
 
     def calculate_coefficient_of_variation(self, idx: int = 0, verbose: bool = True) -> float:
         """
@@ -270,7 +297,7 @@ class Portfolio:
                 print(f"  Security [{idx}] has coefficient of variation of {security_cv_str}")
             return security_cv
     
-    def calculate_sharpe_ratio(self, rf, idx=0, verbose=True) -> float:
+    def calculate_sharpe_ratio(self, rf: float, idx: int = 0, verbose: bool = True) -> float:
         """
         Calculate sharpe ratio of the portfolio or specific security.
 
@@ -286,7 +313,7 @@ class Portfolio:
             float: The portfolio or security sharpe ratio.
         """
         assert rf >= 0, 'Risk-Free Rate of Return must be nonnegative.'
-        rf_str = f"(w/ risk-free rate {100 * rf:.{self.fp}f}%)"
+        rf_str = colored(f"(w/ risk-free rate {100 * rf:.{self.fp}f}%)", 'grey')
         if idx == 0:
             portfolio_return = self.calculate_return(verbose=False)
             portfolio_volatility = self.calculate_volatility(verbose=False)
@@ -339,11 +366,14 @@ if __name__ == '__main__':
     # Assessment 2: Calculate portfolio volatility (portfolio standard deviation)
     portfolio.calculate_volatility()
 
-    # Assessment 3: Calculate portfolio and each security's coefficient of variation
+    # Assessment 3: Calculate portfolio variance reduction (portfolio diversification benefit)
+    portfolio.calculate_variance_reduction()
+
+    # Assessment 4: Calculate portfolio and each security's coefficient of variation
     for security in range(portfolio.count + 1):
         portfolio.calculate_coefficient_of_variation(security)
 
-    # Assessment 4: Calculate portfolio and each security's sharpe ratio
+    # Assessment 5: Calculate portfolio and each security's sharpe ratio
     risk_free_rate = 0.01
     for security in range(portfolio.count + 1):
         portfolio.calculate_sharpe_ratio(risk_free_rate, security)
