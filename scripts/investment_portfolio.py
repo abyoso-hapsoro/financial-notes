@@ -172,7 +172,7 @@ class Portfolio:
         """
         Validate 'fp' argument passed to Portfolio.
         """
-        assert isinstance(fp_, int) and fp_ >= 0, 'Returns must be nonnegative integer.'
+        assert isinstance(fp_, int) and fp_ >= 0, 'Floating precision must be nonnegative integer.'
         self._fp = fp_
 
     def __repr__(self):
