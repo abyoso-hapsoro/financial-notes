@@ -54,4 +54,4 @@ Lastly, we can visualize the Empirical Rule for our example as follows.
 <img src="../images/empirical_rule.png"></img>
 
 ## References
-• Hayes, Adam. "Empirical Rule: Definition, Formula, Example, How It's Used." Investopedia, 27 June 2024, [investopedia.com/terms/e/empirical-rule.asp](https://www.investopedia.com/terms/e/empirical-rule.asp).
+• Hayes, Adam. "Empirical Rule: Definition, Formula, Example, How It's Used." *Investopedia*, 27 June 2024, [investopedia.com/terms/e/empirical-rule.asp](https://www.investopedia.com/terms/e/empirical-rule.asp).
