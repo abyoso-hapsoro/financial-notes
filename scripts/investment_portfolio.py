@@ -96,6 +96,7 @@ class Portfolio:
         Validate 'returns' argument passed to Portfolio.
         """
         assert isinstance(returns_, list), 'Returns must be a list.'
+        assert len(returns_) > 0, 'Returns must be non-empty.'
         for return_ in returns_:
             assert isinstance(return_, float) and 0 <= return_ <= 1, 'Each return must be between 0 and 1 inclusive.'
         self._returns = returns_
@@ -341,7 +342,7 @@ if __name__ == '__main__':
     security_correlations = {
         (1, 2): 0.3,  # security 1 and 2 have correlation of 0.3
         (1, 3): 0.5,  # security 1 and 3 have correlation of 0.5
-        (2, 3): 0.2,  # security 2 and 3 have correlation of 0.2
+        (2, 3): 0.2   # security 2 and 3 have correlation of 0.2
     }
     floating_precision = 3
 
