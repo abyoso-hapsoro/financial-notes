@@ -23,6 +23,8 @@ class Portfolio:
             Floating precision for output formatting.
         count (int):
             Number of securities in the portfolio.
+        count_adjusted (int):
+            Adjusted count for processing logic.
         max_return_length (int):
             Maximum formatted string length for returns (for display alignment).
         max_volatility_length (int):
@@ -64,6 +66,7 @@ class Portfolio:
 
         # Get number of securities 
         self.count = len(returns)
+        self.count_adjusted = 0 if len(returns) == 1 else len(returns)
         
         # Initialize volatilities then set
         self._volatilities = None
@@ -181,7 +184,8 @@ class Portfolio:
         return f'Portfolio(returns={self.returns}, weights={self.weights})'
 
     def __str__(self):
-        output = f"Portfolio consists of the following {self.count} securities:\n"
+        output = f"Portfolio consists of the following {self.count} "
+        output += f"{'securities' if self.count_adjusted else 'security'}:\n"
         for idx in range(self.count):
             abs_weight_str = f"{100 * abs(self.weights[idx]):.{self.fp}f}".rjust(self.max_weight_length)
             sign = "-" if self.weights[idx] < 0 else " "
@@ -191,14 +195,17 @@ class Portfolio:
             output += f"    [{idx + 1}] {sign}{abs_weight_str}%"
             output += f" with expected return of {return_str}%"
             output += f" and volatility of {volatility_str}%"
-            output += f"{shorting}\n"
-        output += f"Correlation between securities:\n"
-        for idx_i in range(1, self.count):
-            for idx_j in range(idx_i + 1, self.count + 1):
-                correlation_str = f"{self.correlations[(idx_i, idx_j)]:.{self.fp}f}".rjust(self.fp + 3)
-                output += f"• ρ([{idx_i}], [{idx_j}]) = {correlation_str}"
-                if idx_i < self.count - 1:
-                    output += "\n"
+            output += f"{shorting}"
+            if idx < self.count - 1:
+                output += "\n"
+        if self.count_adjusted:
+            output += f"\nCorrelation between securities:\n"
+            for idx_i in range(1, self.count):
+                for idx_j in range(idx_i + 1, self.count + 1):
+                    correlation_str = f"{self.correlations[(idx_i, idx_j)]:.{self.fp}f}".rjust(self.fp + 3)
+                    output += f"• ρ([{idx_i}], [{idx_j}]) = {correlation_str}"
+                    if idx_i < self.count - 1:
+                        output += "\n"
         return output
 
     def calculate_return(self, verbose: bool = True) -> float:
@@ -264,7 +271,9 @@ class Portfolio:
         portfolio_volatility = self.calculate_volatility(verbose=False)
         portfolio_vr = portfolio_volatility_max - portfolio_volatility
         if verbose:
-            portfolio_vr_str = colored(f"{100 * portfolio_vr:.{self.fp}f}%", 'green')
+            portfolio_vr_str = f"{100 * portfolio_vr:.{self.fp}f}%"
+            if portfolio_vr > 0:
+                portfolio_vr_str = colored(portfolio_vr_str, 'green')
             print(f"• Portfolio has variance reduction (diversification benefit) of {portfolio_vr_str}")
         return portfolio_vr
 
@@ -371,10 +380,10 @@ if __name__ == '__main__':
     portfolio.calculate_variance_reduction()
 
     # Assessment 4: Calculate portfolio and each security's coefficient of variation
-    for security in range(portfolio.count + 1):
+    for security in range(portfolio.count_adjusted + 1):
         portfolio.calculate_coefficient_of_variation(security)
 
     # Assessment 5: Calculate portfolio and each security's sharpe ratio
     risk_free_rate = 0.01
-    for security in range(portfolio.count + 1):
+    for security in range(portfolio.count_adjusted + 1):
         portfolio.calculate_sharpe_ratio(risk_free_rate, security)
