@@ -155,7 +155,9 @@ class Portfolio:
                     correlations_[(idx_i, idx_j)] = 0.
             self._correlations = correlations_
         else:
+            # Validate correlations
             assert isinstance(correlations_, dict), 'Correlations must be a dictionary.'
+            assert len(correlations_) > 0, 'Correlations must be non-empty.'
             for correlation_ in correlations_:
                 assert isinstance(correlation_, tuple), 'Each correlation key must be tuple.'
                 assert len(correlation_) == 2, 'Each correlation key tuple must have exactly 2 elements.'
@@ -166,6 +168,12 @@ class Portfolio:
                 assert correlation_[0] != correlation_[1], 'Correlation key tuple elements must be distinct.'
                 assert isinstance(correlations_[correlation_], float), 'Each correlation value must be float.'
                 assert -1 <= correlations_[correlation_] <= 1, 'Each correlation value must be between -1 and 1 inclusive.'
+            # Populate missing correlation(s)
+            keys = [(i, j) for i in range(1, self.count) for j in range(i + 1, self.count + 1)]
+            for key in keys:
+                if key not in correlations_:
+                    correlations_[key] = 0.
+            # Set correlations
             self._correlations = correlations_
 
     @property
