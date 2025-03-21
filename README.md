@@ -1,7 +1,7 @@
 # Financial Notes
 Miscellaneous notes crafted for Master studies (01/2025-TBA). The main folder is `notes` where each note has some of its contents ingesting from `scripts` and `images`. This repo is still being actively populated.
 
-This repository is <u>not</u> meant to be complex. Just a collection of notes and implementations.
+This repository is <ins>not</ins> meant to be complex. Just a collection of notes and implementations.
 
 ## Running Scripts
 If you would like to run a script, here is an outlined basic guideline.
