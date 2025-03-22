@@ -189,7 +189,11 @@ class Portfolio:
         self._fp = fp_
 
     def __repr__(self):
-        return f'Portfolio(returns={self.returns}, weights={self.weights})'
+        return_repr = f'returns={self.returns}'
+        volatility_repr = f'volatilities={self.volatilities}'
+        weight_repr = f'weights={self.weights}'
+        correlation_repr = f'correlations={self.correlations}'
+        return f"Portfolio({return_repr}, {volatility_repr}, {weight_repr}, {correlation_repr})"
 
     def __str__(self):
         output = f"Portfolio consists of the following {self.count} "
